@@ -1,0 +1,1 @@
+obj-$(CONFIG_DUOWEI_GPIO) += dw_gpio.o

@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">NFCWriteDemo</string>
+    <string name="writee2prom">WriteE2Prom</string>
+    <string name="wpa2">WPA2</string>
+    <string name="password">password</string>
+    <string name="ssid">ssid</string>
+    <string name="encrypt">Encrypt:</string>
+    <string name="passwd">PASSWD:</string>
+    <string name="ssid2">SSID:</string>
+</resources>

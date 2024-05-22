@@ -1,0 +1,1 @@
+obj-$(CONFIG_FUDAN_FM11NT082C) += fm11nt082c_i2c.o iic.o FM11.o
