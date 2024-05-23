@@ -7,4 +7,9 @@
     <string name="encrypt">Encrypt:</string>
     <string name="passwd">PASSWD:</string>
     <string name="ssid2">SSID:</string>
+    <string-array name="encrypt_list">
+        <item>NONE</item>
+        <item>WEP</item>
+        <item>WPA/WPA2</item>
+    </string-array>
 </resources>

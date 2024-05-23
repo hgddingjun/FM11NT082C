@@ -72,11 +72,12 @@ typedef struct fm11nt082c_info {
 
 /*static*/ st_fm11nt082c_info *p_nfc_info = NULL;
 
-static char gStrEncrypt[ENCRYPT_BUF_SIZE];
+//static char gStrEncrypt[ENCRYPT_BUF_SIZE];
+static int encryType = 1;
 static char gStrSSID[SSID_BUF_SIZE];
 static char gStrPasswd[PASSWD_BUF_SIZE];
 
-static uint8_t encrypt_length = 0; //加密类型字符串长度
+//static uint8_t encrypt_length = 0; //加密类型字符串长度
 static uint8_t ssid_length = 0;   //wifi热点名称字符串长度
 static uint8_t password_length = 0; //wifi密码字符串长度
 static uint8_t total_lengh = 0;
@@ -89,7 +90,7 @@ static const uint8_t fixdata_1[5] = {0x10, 0x4A, 0x00, 0x01, 0x10};
 static const uint8_t wifi_header[3] = {0x10, 0x0e, 0x00}; // length
 static const uint8_t wifi_id[5] = {0x10, 0x26, 0x00, 0x01, 0x01};
 static const uint8_t wifi_auth_type[6] = {0x10, 0x03, 0x00, 0x02, 0x00, 0x20};
-static const uint8_t wifi_encrypt_type[6] = {0x10, 0x0f, 0x00, 0x02, 0x00, 0x01};
+static /*const*/ uint8_t wifi_encrypt_type[6] = {0x10, 0x0f, 0x00, 0x02, 0x00, 0x01};
 static const uint8_t wifi_mac[10] = {0x10, 0x20, 0x00, 0x06, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 
 static const uint8_t fixdata_2[5] = {0xFF, 0xFF, 0x00, 0x01, 0x00};
@@ -468,6 +469,8 @@ void write_ndef_user_data(void)
 	/*--------------wifi ssid--------------*/
 
 	memcpy(&ndef_file[46 + ssid_length], wifi_auth_type, 6);
+
+	wifi_encrypt_type[5] = (uint8_t)encryType; //加密类型: NONE:(1) WEP:(2) WPA/WPA2:(8)
 	memcpy(&ndef_file[46 + ssid_length + 6], wifi_encrypt_type, 6);
 
 	/*************** wifi passwd ***************/
@@ -522,20 +525,28 @@ static DEVICE_ATTR(dumpE2P, 0664, show_dump_eeprom, store_dump_eeprom);
 
 static ssize_t show_encrypt_eeprom(struct device *dev, struct device_attribute *attr,char *buf)
 {
-	pr_info("%s,%d gStrEncrypt=%s\n",__func__,__LINE__,gStrEncrypt);
-	return sprintf(buf, "%s", gStrEncrypt);
+	pr_info("%s,%d encryType=%d\n",__func__,__LINE__,encryType);
+	return sprintf(buf, "%d", encryType);
 }
 static ssize_t store_encrypt_eeprom(struct device *dev, struct device_attribute *attr, const char *buf, size_t size)
 {
+	int ret = 0;
 	if (size > LIMIT_LENGTH/*PAGE_SIZE - 1*/) {
         return -EINVAL;
 	}
 
-	memset(gStrEncrypt, 0x00, ENCRYPT_BUF_SIZE);
-	strncpy(gStrEncrypt, buf, size);
-	pr_info("%s,%d gStrEncrypt=%s, size=%d\n",__func__,__LINE__,gStrEncrypt,size);
-	/*写EEPROM...*/
-	encrypt_length = size;
+	ret = sscanf(buf, "%d", &encryType);
+	if(1 == ret) {
+		wifi_encrypt_type[5] = (uint8_t)encryType;
+	} else {
+		pr_err("ERROR: input err!\n");
+	}
+
+	// memset(gStrEncrypt, 0x00, ENCRYPT_BUF_SIZE);
+	// strncpy(gStrEncrypt, buf, size);
+	 pr_info("%s,%d encryType=%d\n",__func__,__LINE__,encryType);
+	// /*写EEPROM...*/
+	// encrypt_length = size;
 	return size;
 }
 static DEVICE_ATTR(encrypt, 0664, show_encrypt_eeprom, store_encrypt_eeprom);
@@ -594,7 +605,7 @@ static int fm11nt082c_nfc_i2c_probe(struct i2c_client *client, const struct i2c_
 
 	pr_info("Probing fm11nt082c nfc I2C device: %s\n", client->name);
 
-	memset(gStrEncrypt, 0x00, sizeof(gStrEncrypt));
+	//memset(gStrEncrypt, 0x00, sizeof(gStrEncrypt));
 	memset(gStrSSID, 0x00, sizeof(gStrSSID));
 	memset(gStrPasswd, 0x00, sizeof(gStrPasswd));
 
